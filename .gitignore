@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 자동 생성 — Connect AI 1인 기업 모드
 # 시크릿·API 키 보호
 _agents/*/config.md
@@ -8,3 +9,14 @@ _cache/
 # 대용량 임시 산출물
 _tmp/
 *.log
+=======
+# Connect AI auto-generated
+.DS_Store
+.obsidian/
+.trash/
+node_modules/
+*.tmp
+*.log
+.cache/
+Thumbs.db
+>>>>>>> c2d7e40 (Initial brain commit)
