@@ -14,7 +14,7 @@ const StyleForm: React.FC<StyleFormProps> = ({ onAnalyze, analysis }) => {
     lifestyle: 'casual',
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setInputData({ ...inputData, [e.target.name]: e.target.value });
   };
 
