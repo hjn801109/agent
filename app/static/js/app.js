@@ -252,7 +252,7 @@ const App = (() => {
                 const resp = await fetch('/api/autopilot/start', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ interval_minutes: 60 }),
+                    body: JSON.stringify({ interval_minutes: 30 }),
                 });
                 const result = await resp.json();
 
@@ -279,7 +279,7 @@ const App = (() => {
     function startAutopilotPolling() {
         if (_autopilotPolling) return;
         pollAutopilotStatus();
-        _autopilotPolling = setInterval(pollAutopilotStatus, 15000);
+        _autopilotPolling = setInterval(pollAutopilotStatus, 30000);
     }
 
     function stopAutopilotPolling() {

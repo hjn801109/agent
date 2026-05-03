@@ -44,8 +44,8 @@ class AutoPilot:
     def __init__(self):
         self._running = False
         self._task: Optional[asyncio.Task] = None
-        self._interval_minutes = 60
-        self._max_cycles = 24  # 안전장치: 최대 24회 (24시간)
+        self._interval_minutes = 30
+        self._max_cycles = 48  # 안전장치: 최대 48회 (24시간)
         self._completed_cycles = 0
         self._next_run: Optional[datetime] = None
         self._current_status = "off"  # off, waiting, working
@@ -65,7 +65,7 @@ class AutoPilot:
             "log": self._log[-10:],  # 최근 10개만
         }
 
-    def start(self, interval_minutes: int = 60):
+    def start(self, interval_minutes: int = 30):
         """자율 업무 시작"""
         if self._running:
             return {"success": False, "message": "이미 실행 중입니다."}
