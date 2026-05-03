@@ -242,22 +242,75 @@ body {
     box-shadow: 0 0 8px rgba(46, 204, 113, 0.4);
 }
 
-.model-select {
-    margin-left: auto;
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border);
-    color: var(--text-secondary);
-    font-size: 11px;
-    padding: 3px 6px;
-    border-radius: 4px;
-    font-family: inherit;
-    cursor: pointer;
-    max-width: 120px;
+/* ── Model Panel ── */
+.model-panel {
+    padding: 8px 12px;
+    border-top: 1px solid var(--border);
 }
 
-.model-select:focus {
-    outline: none;
+.model-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 120px;
+    overflow-y: auto;
+    margin-top: 4px;
+}
+
+.model-list::-webkit-scrollbar {
+    width: 3px;
+}
+
+.model-list::-webkit-scrollbar-thumb {
+    background: var(--border-hover);
+    border-radius: 3px;
+}
+
+.model-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 11px;
+    color: var(--text-secondary);
+    border: 1px solid transparent;
+}
+
+.model-card:hover {
+    background: var(--bg-card-hover);
+    color: var(--text-primary);
+}
+
+.model-card.active {
+    background: rgba(216, 138, 155, 0.1);
     border-color: var(--rose-primary);
+    color: var(--rose-light);
+}
+
+.model-card .model-icon {
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.model-card .model-name {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
+}
+
+.model-card .model-check {
+    font-size: 12px;
+    color: var(--rose-primary);
+    display: none;
+}
+
+.model-card.active .model-check {
+    display: inline;
 }
 
 /* ── Main Chat Area (중앙) ── */
@@ -933,6 +986,195 @@ body {
 @keyframes blink {
     0%, 100% { opacity: 1; }
     50% { opacity: 0; }
+}
+
+/* ── Session File Card (우측 패널 클릭 가능 카드) ── */
+.session-file-card {
+    transition: var(--transition);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    margin-bottom: 8px;
+}
+
+.session-file-card:hover {
+    border-color: var(--rose-primary);
+    background: var(--bg-card-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 12px rgba(216, 138, 155, 0.15);
+}
+
+/* ── File Viewer (가운데 전체 화면 뷰어) ── */
+.file-viewer {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.file-viewer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius) var(--radius) 0 0;
+    flex-shrink: 0;
+}
+
+.file-viewer-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.file-viewer-icon {
+    font-size: 28px;
+}
+
+.file-viewer-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--rose-light);
+}
+
+.file-viewer-session {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.file-viewer-close {
+    padding: 6px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.file-viewer-close:hover {
+    background: var(--rose-dark);
+    color: #fff;
+    border-color: var(--rose-dark);
+}
+
+.file-viewer-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px 32px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--text-primary);
+}
+
+.file-viewer-content h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--rose-light);
+    margin: 24px 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+}
+
+.file-viewer-content h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--rose-primary);
+    margin: 20px 0 10px;
+}
+
+.file-viewer-content h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin: 16px 0 8px;
+}
+
+.file-viewer-content p {
+    margin: 8px 0;
+}
+
+.file-viewer-content strong {
+    color: var(--rose-light);
+}
+
+.file-viewer-content ul, .file-viewer-content ol {
+    padding-left: 24px;
+    margin: 10px 0;
+}
+
+.file-viewer-content li {
+    margin: 6px 0;
+}
+
+.file-viewer-content hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 20px 0;
+}
+
+.file-viewer-content code {
+    background: var(--bg-tertiary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: 'SF Mono', monospace;
+}
+
+.file-viewer-content pre {
+    background: var(--bg-tertiary);
+    padding: 16px;
+    border-radius: var(--radius-sm);
+    overflow-x: auto;
+    margin: 12px 0;
+    border: 1px solid var(--border);
+}
+
+.file-viewer-content pre code {
+    background: none;
+    padding: 0;
+}
+
+.file-viewer-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 13px;
+}
+
+.file-viewer-content th, .file-viewer-content td {
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    text-align: left;
+}
+
+.file-viewer-content th {
+    background: var(--bg-tertiary);
+    font-weight: 600;
+    color: var(--rose-light);
+}
+
+.file-viewer-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.file-viewer-content::-webkit-scrollbar-thumb {
+    background: var(--border-hover);
+    border-radius: 6px;
 }
 
 /* 반응형 (태블릿 이하에서 우측 패널 숨김) */

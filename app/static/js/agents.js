@@ -189,10 +189,18 @@ const Agents = (() => {
             `;
 
             for (const [name, content] of Object.entries(data.files || {})) {
+                // 각 파일을 클릭 가능한 카드로 렌더링
+                const preview = content.substring(0, 100).replace(/\n/g, ' ');
                 html += `
-                    <div class="detail-section">
-                        <div class="detail-section-title">${name}</div>
-                        <div class="detail-section-content">${content}</div>
+                    <div class="detail-section session-file-card" onclick="Agents.openFileInCenter('${sessionId}', '${name}')" style="cursor:pointer">
+                        <div class="detail-section-title" style="display:flex;align-items:center;gap:6px">
+                            📄 ${name}
+                            <span style="margin-left:auto;font-size:10px;color:var(--rose-primary)">클릭하여 열기 →</span>
+                        </div>
+                        <div class="detail-section-content" style="max-height:80px;overflow:hidden;position:relative">
+                            ${preview}...
+                            <div style="position:absolute;bottom:0;left:0;right:0;height:30px;background:linear-gradient(transparent, var(--bg-card))"></div>
+                        </div>
                     </div>
                 `;
             }
@@ -201,6 +209,115 @@ const Agents = (() => {
         } catch (err) {
             console.error('세션 로드 실패:', err);
         }
+    }
+
+    /**
+     * 세션 파일을 가운데 화면에 크게 열기
+     */
+    async function openFileInCenter(sessionId, filename) {
+        try {
+            const resp = await fetch(`/api/sessions/${sessionId}`);
+            const data = await resp.json();
+            const content = data.files?.[filename];
+
+            if (!content) {
+                alert('파일을 찾을 수 없습니다.');
+                return;
+            }
+
+            const container = document.getElementById('chatContainer');
+            const welcome = document.getElementById('welcomeScreen');
+            if (welcome) welcome.remove();
+
+            // 마크다운 렌더링
+            const rendered = renderMarkdownFull(content);
+
+            // 이전 뷰어가 있으면 제거
+            const prev = document.getElementById('fileViewer');
+            if (prev) prev.remove();
+
+            // 파일 뷰어 생성
+            const viewer = document.createElement('div');
+            viewer.id = 'fileViewer';
+            viewer.className = 'file-viewer';
+            viewer.innerHTML = `
+                <div class="file-viewer-header">
+                    <div class="file-viewer-info">
+                        <span class="file-viewer-icon">📄</span>
+                        <div>
+                            <div class="file-viewer-name">${filename}</div>
+                            <div class="file-viewer-session">세션: ${sessionId}</div>
+                        </div>
+                    </div>
+                    <button class="file-viewer-close" onclick="Agents.closeFileViewer()">✕ 닫기</button>
+                </div>
+                <div class="file-viewer-content">${rendered}</div>
+            `;
+
+            // 채팅 메시지들을 숨기고 뷰어 표시
+            container.querySelectorAll(':scope > *:not(#fileViewer)').forEach(el => {
+                el.style.display = 'none';
+                el.dataset.wasVisible = 'true';
+            });
+            container.prepend(viewer);
+            container.scrollTop = 0;
+        } catch (err) {
+            console.error('파일 열기 실패:', err);
+        }
+    }
+
+    /**
+     * 파일 뷰어 닫기 → 채팅 복원
+     */
+    function closeFileViewer() {
+        const viewer = document.getElementById('fileViewer');
+        if (viewer) viewer.remove();
+
+        const container = document.getElementById('chatContainer');
+        container.querySelectorAll('[data-was-visible]').forEach(el => {
+            el.style.display = '';
+            delete el.dataset.wasVisible;
+        });
+    }
+
+    /**
+     * 마크다운 전체 렌더링 (파일 뷰어용)
+     */
+    function renderMarkdownFull(text) {
+        if (!text) return '';
+
+        let html = text
+            // 코드 블록
+            .replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
+            // 인라인 코드
+            .replace(/`([^`]+)`/g, '<code>$1</code>')
+            // 볼드
+            .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+            // 이탤릭
+            .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+            // 헤딩
+            .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+            .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+            .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+            // 수평선
+            .replace(/^---$/gm, '<hr>')
+            // 테이블
+            .replace(/^\|(.+)\|$/gm, (match) => {
+                const cells = match.split('|').filter(c => c.trim());
+                if (cells.every(c => /^[\s:-]+$/.test(c))) return '';
+                return '<tr>' + cells.map(c => `<td>${c.trim()}</td>`).join('') + '</tr>';
+            })
+            // 리스트
+            .replace(/^[-*] (.+)$/gm, '<li>$1</li>')
+            .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+            // 줄바꿈
+            .replace(/\n\n/g, '</p><p>')
+            .replace(/\n/g, '<br>');
+
+        html = html.replace(/((<li>.*?<\/li>)(?:<br>)?)+/gs, '<ul>$&</ul>');
+        html = html.replace(/((<tr>.*?<\/tr>)(?:<br>)?)+/gs, '<table>$&</table>');
+
+        return `<p>${html}</p>`;
     }
 
     /**
@@ -301,6 +418,8 @@ const Agents = (() => {
         saveField,
         loadSessions,
         viewSession,
+        openFileInCenter,
+        closeFileViewer,
         switchTab,
         loadSharedMemory,
         editShared,

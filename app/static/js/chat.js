@@ -99,6 +99,18 @@ const Chat = (() => {
                 renderDistribution(data);
                 break;
 
+            case 'web_searching':
+                renderSystemMessage(`🔍 웹 검색 중: "${data.query}"...`);
+                break;
+
+            case 'search_done':
+                if (data.count > 0) {
+                    renderSystemMessage(`📋 검색 완료 — ${data.count}개 결과를 에이전트에게 전달합니다.`);
+                } else {
+                    renderSystemMessage('⚠️ 검색 결과가 없습니다. 기존 지식으로 진행합니다.');
+                }
+                break;
+
             case 'agent_start':
                 startAgentMessage(data);
                 break;

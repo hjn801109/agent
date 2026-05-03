@@ -97,19 +97,8 @@ const App = (() => {
             document.getElementById('ollamaStatusText').textContent =
                 settings.ollama_status ? 'Ollama 연결됨' : 'Ollama 오프라인';
 
-            // 모델 선택
-            const select = document.getElementById('modelSelect');
-            select.innerHTML = settings.available_models
-                .map(m => `<option value="${m}" ${m === settings.model ? 'selected' : ''}>${m}</option>`)
-                .join('');
-
-            select.addEventListener('change', async () => {
-                await fetch('/api/settings', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ model: select.value }),
-                });
-            });
+            // 모델 카드 렌더링
+            renderModelCards(settings.available_models, settings.model);
 
             // Git 상태 표시
             if (settings.git) {
@@ -120,6 +109,50 @@ const App = (() => {
             dot.classList.remove('online');
             document.getElementById('ollamaStatusText').textContent = 'Ollama 연결 실패';
         }
+    }
+
+    /**
+     * 모델 카드 렌더링
+     */
+    function renderModelCards(models, currentModel) {
+        const list = document.getElementById('modelList');
+        if (!list) return;
+
+        list.innerHTML = models.map(m => {
+            const isActive = m === currentModel;
+            const shortName = m.replace(':latest', '');
+            return `
+                <div class="model-card ${isActive ? 'active' : ''}" data-model="${m}">
+                    <span class="model-icon">🧠</span>
+                    <span class="model-name">${shortName}</span>
+                    <span class="model-check">✓</span>
+                </div>
+            `;
+        }).join('');
+
+        // 모델 없을 때
+        if (models.length === 0) {
+            list.innerHTML = '<div style="padding:8px;font-size:11px;color:var(--text-muted)">모델 없음</div>';
+            return;
+        }
+
+        // 클릭 이벤트
+        list.querySelectorAll('.model-card').forEach(card => {
+            card.addEventListener('click', async () => {
+                const model = card.dataset.model;
+
+                // UI 즉시 업데이트
+                list.querySelectorAll('.model-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+
+                // 서버에 변경 요청
+                await fetch('/api/settings', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ model }),
+                });
+            });
+        });
     }
 
     /**
@@ -184,8 +217,23 @@ const App = (() => {
             btn.textContent = '🔄 동기화';
         }
     }
+    /**
+     * 모델 목록 새로고침 (새 모델 다운로드 후 사용)
+     */
+    async function refreshModels() {
+        const list = document.getElementById('modelList');
+        list.innerHTML = '<div style="padding:8px;font-size:11px;color:var(--text-muted)">🔄 새로고침 중...</div>';
 
-    return { init, setTargetAgent, getTargetAgent, syncGithub };
+        try {
+            const resp = await fetch('/api/settings');
+            const settings = await resp.json();
+            renderModelCards(settings.available_models, settings.model);
+        } catch (err) {
+            list.innerHTML = '<div style="padding:8px;font-size:11px;color:var(--text-muted)">⚠️ 불러오기 실패</div>';
+        }
+    }
+
+    return { init, setTargetAgent, getTargetAgent, syncGithub, refreshModels };
 })();
 
 // DOM 로드 후 초기화
