@@ -35,6 +35,21 @@
                     </div>
                 </div>
 
+                <!-- 24시간 자율 업무 토글 -->
+                <div class="autopilot-bar" id="autopilotBar">
+                    <div class="autopilot-toggle">
+                        <span class="autopilot-icon" id="autopilotIcon">🌙</span>
+                        <div class="autopilot-info">
+                            <div class="autopilot-label">24시간 업무</div>
+                            <div class="autopilot-status" id="autopilotStatus">비활성</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="autopilotSwitch" onchange="App.toggleAutopilot()">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
                 <div class="section-label">에이전트</div>
                 <div id="agentList">
                     <!-- JS가 채움 -->

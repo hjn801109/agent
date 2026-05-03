@@ -988,6 +988,111 @@ body {
     50% { opacity: 0; }
 }
 
+/* ── AutoPilot Toggle Bar ── */
+.autopilot-bar {
+    margin: 8px 0;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    transition: var(--transition);
+}
+
+.autopilot-bar.active {
+    border-color: #f39c12;
+    background: rgba(243, 156, 18, 0.08);
+    box-shadow: 0 0 12px rgba(243, 156, 18, 0.15);
+}
+
+.autopilot-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.autopilot-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.autopilot-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.autopilot-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.autopilot-status {
+    font-size: 10px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.autopilot-bar.active .autopilot-status {
+    color: #f39c12;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--bg-tertiary);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    left: 2px;
+    bottom: 2px;
+    transition: var(--transition);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    background: #f39c12;
+    border-color: #f39c12;
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+    transform: translateX(16px);
+    background: #fff;
+}
+
+@keyframes autopilotGlow {
+    0%, 100% { box-shadow: 0 0 8px rgba(243, 156, 18, 0.15); }
+    50% { box-shadow: 0 0 16px rgba(243, 156, 18, 0.3); }
+}
+
+.autopilot-bar.active {
+    animation: autopilotGlow 3s ease-in-out infinite;
+}
+
 /* ── Session File Card (우측 패널 클릭 가능 카드) ── */
 .session-file-card {
     transition: var(--transition);

@@ -20,6 +20,9 @@ const App = (() => {
             loadSettings(),
         ]);
 
+        // AutoPilot 상태 체크
+        checkAutopilotOnLoad();
+
         // 패널 탭 이벤트
         document.querySelectorAll('.panel-tab').forEach(tab => {
             tab.addEventListener('click', () => {
@@ -233,8 +236,133 @@ const App = (() => {
         }
     }
 
-    return { init, setTargetAgent, getTargetAgent, syncGithub, refreshModels };
+    // ── AutoPilot ──
+
+    let _autopilotPolling = null;
+
+    /**
+     * 자율 업무 토글
+     */
+    async function toggleAutopilot() {
+        const sw = document.getElementById('autopilotSwitch');
+        const isOn = sw.checked;
+
+        try {
+            if (isOn) {
+                const resp = await fetch('/api/autopilot/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ interval_minutes: 60 }),
+                });
+                const result = await resp.json();
+
+                if (result.success) {
+                    startAutopilotPolling();
+                } else {
+                    sw.checked = false;
+                    alert(result.message);
+                }
+            } else {
+                await fetch('/api/autopilot/stop', { method: 'POST' });
+                stopAutopilotPolling();
+                updateAutopilotUI({ running: false, status: 'off' });
+            }
+        } catch (err) {
+            sw.checked = false;
+            console.error('AutoPilot 토글 실패:', err);
+        }
+    }
+
+    /**
+     * 상태 폴링 시작 (15초 간격)
+     */
+    function startAutopilotPolling() {
+        if (_autopilotPolling) return;
+        pollAutopilotStatus();
+        _autopilotPolling = setInterval(pollAutopilotStatus, 15000);
+    }
+
+    function stopAutopilotPolling() {
+        if (_autopilotPolling) {
+            clearInterval(_autopilotPolling);
+            _autopilotPolling = null;
+        }
+    }
+
+    async function pollAutopilotStatus() {
+        try {
+            const resp = await fetch('/api/autopilot/status');
+            const data = await resp.json();
+            updateAutopilotUI(data);
+
+            // 꺼졌으면 폴링 중단
+            if (!data.running) {
+                stopAutopilotPolling();
+                const sw = document.getElementById('autopilotSwitch');
+                if (sw) sw.checked = false;
+            }
+        } catch (err) {
+            // 연결 실패 시 무시
+        }
+    }
+
+    /**
+     * AutoPilot UI 업데이트
+     */
+    function updateAutopilotUI(data) {
+        const bar = document.getElementById('autopilotBar');
+        const icon = document.getElementById('autopilotIcon');
+        const status = document.getElementById('autopilotStatus');
+        const sw = document.getElementById('autopilotSwitch');
+
+        if (!bar) return;
+
+        if (data.running) {
+            bar.classList.add('active');
+            sw.checked = true;
+
+            if (data.status === 'working') {
+                icon.textContent = '⚡';
+                status.textContent = `작업 중... (#${data.completed_cycles + 1})`;
+            } else if (data.status === 'waiting' && data.next_run) {
+                icon.textContent = '🌞';
+                const next = new Date(data.next_run);
+                const diff = Math.max(0, Math.floor((next - Date.now()) / 60000));
+                status.textContent = `다음 작업 ${diff}분 후 (완료: ${data.completed_cycles}개)`;
+            } else {
+                icon.textContent = '🌞';
+                status.textContent = `활성 (완료: ${data.completed_cycles}개)`;
+            }
+        } else {
+            bar.classList.remove('active');
+            icon.textContent = '🌙';
+            status.textContent = data.completed_cycles > 0
+                ? `비활성 (총 ${data.completed_cycles}개 완료)`
+                : '비활성';
+        }
+    }
+
+    /**
+     * 초기화 시 autopilot 상태 체크
+     */
+    async function checkAutopilotOnLoad() {
+        try {
+            const resp = await fetch('/api/autopilot/status');
+            const data = await resp.json();
+            updateAutopilotUI(data);
+            if (data.running) {
+                document.getElementById('autopilotSwitch').checked = true;
+                startAutopilotPolling();
+            }
+        } catch (err) {
+            // 무시
+        }
+    }
+
+    return { init, setTargetAgent, getTargetAgent, syncGithub, refreshModels, toggleAutopilot };
 })();
 
 // DOM 로드 후 초기화
-document.addEventListener('DOMContentLoaded', App.init);
+document.addEventListener('DOMContentLoaded', () => {
+    App.init();
+});

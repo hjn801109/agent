@@ -14,6 +14,7 @@ from app.models import (
     SettingsUpdateRequest,
 )
 from app import memory, agents, orchestrator, sync
+from app.autopilot import autopilot
 
 # ──────────────────────────────────────────
 # 앱 초기화
@@ -219,6 +220,30 @@ async def git_push():
 async def git_full_sync():
     """전체 동기화 (pull + commit + push)"""
     return sync.full_sync("전체 동기화")
+
+
+# ──────────────────────────────────────────
+# API: 자율 업무 (AutoPilot)
+# ──────────────────────────────────────────
+
+@app.post("/api/autopilot/start")
+async def autopilot_start(req: Request):
+    """자율 업무 시작"""
+    body = await req.json() if req.headers.get("content-type") == "application/json" else {}
+    interval = body.get("interval_minutes", 30)
+    return autopilot.start(interval_minutes=interval)
+
+
+@app.post("/api/autopilot/stop")
+async def autopilot_stop():
+    """자율 업무 중단"""
+    return autopilot.stop()
+
+
+@app.get("/api/autopilot/status")
+async def autopilot_status():
+    """자율 업무 상태"""
+    return autopilot.status
 
 
 # ──────────────────────────────────────────
