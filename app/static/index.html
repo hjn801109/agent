@@ -41,6 +41,14 @@
                 </div>
             </div>
 
+            <!-- 모델 선택 -->
+            <div class="model-panel">
+                <div class="section-label">🤖 LLM 모델</div>
+                <div id="modelList" class="model-list">
+                    <!-- JS가 채움 -->
+                </div>
+            </div>
+
             <!-- GitHub 동기화 상태 -->
             <div class="ollama-status" id="gitSyncBar" style="border-bottom:1px solid var(--border)">
                 <div class="status-dot" id="gitStatus"></div>
@@ -54,9 +62,6 @@
             <div class="ollama-status">
                 <div class="status-dot" id="ollamaStatus"></div>
                 <span id="ollamaStatusText">연결 확인 중...</span>
-                <select class="model-select" id="modelSelect">
-                    <option>로딩 중...</option>
-                </select>
             </div>
         </aside>
 
