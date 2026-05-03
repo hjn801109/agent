@@ -1,16 +1,4 @@
-<<<<<<< HEAD
-# 자동 생성 — Connect AI 1인 기업 모드
-# 시크릿·API 키 보호
-_agents/*/config.md
-
-# 외부 API 응답 캐시 (재현 가능)
-_cache/
-
-# 대용량 임시 산출물
-_tmp/
-*.log
-=======
-# Connect AI auto-generated
+# 미드미 1인 기업 OS — Git Ignore
 .DS_Store
 .obsidian/
 .trash/
@@ -19,4 +7,15 @@ node_modules/
 *.log
 .cache/
 Thumbs.db
->>>>>>> c2d7e40 (Initial brain commit)
+
+# Python 가상환경
+.venv/
+__pycache__/
+*.pyc
+
+# 에이전트 설정 (시크릿 보호)
+_agents/*/config.md
+
+# 임시 파일
+_tmp/
+_cache/
