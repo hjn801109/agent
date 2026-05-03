@@ -97,4 +97,33 @@ export async function POST(req: NextRequest) {
   try {
     // 1. 인증 및 RBAC 체크 (Session에서 role 추출 가정)
     const session = await req.auth(); // NextAuth 예시
-    const userRole = (session?.user?.role as UserRole) || '
+    const userRole = (session?.user?.role as UserRole) || 'USER';
+
+    if (!checkPermission(userRole, 'USER')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
+    // 2. 요청 데이터 파싱 및 검증
+    const body = await req.json();
+    const validatedData = UserProfileSchema.parse(body);
+
+    // 3. 민감한 데이터 암호화
+    const encryptedProfile = {
+      user_id: validatedData.user_id,
+      skin_features_encrypted: encrypt(JSON.stringify(validatedData.skin_features)),
+      face_features_encrypted: encrypt(JSON.stringify(validatedData.face_features)),
+      metadata: validatedData.metadata,
+    };
+
+    // 4. DB 저장
+    db.push(encryptedProfile); // 실제 DB Insert 로직으로 대체
+
+    return NextResponse.json({ message: 'Profile saved securely' }, { status: 201 });
+  } catch (error) {
+    console.error('Ingestion Error:', error);
+    if (error instanceof Error && error.name === 'ZodError') {
+      return NextResponse.json({ error: 'Invalid data format' }, { status: 400 });
+    }
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+} 
