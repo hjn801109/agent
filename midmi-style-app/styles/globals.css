@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles for Glassmorphism effect */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Custom typography for the main content */
+body {
+  font-family: 'Georgia', serif; /* Applying Serif font globally */
+  background-color: #fdfdfd; /* Light background */
+}
