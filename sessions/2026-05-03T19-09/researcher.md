@@ -81,4 +81,15 @@ AI 추천 엔진의 학습 성능(Accuracy)과 서비스의 핵심 지표인 Tru
 ```json
 {
   "recommendation_id": "UUID",
-  "user_id
+  "user_id": "UUID",
+  "recommended_style_id": "UUID",
+  "is_match": boolean,
+  "ai_match_accuracy": float (0.0 - 1.0),
+  "user_satisfaction": int (1 - 5),
+  "feedback_tags": ["Natural", "Too_Short", "Color_Nice"],
+  "timestamp": "ISO8601"
+}
+``` 
+
+# 💻 Developer — 정의된 스키마를 바탕으로 데이터 수집 API를 구현하고, AES-256 암호화 및 RBAC 보안 정책이 통합된 안정적인 데이터 인제스션(Ingestion) 및 저장 파이프라인을 구축하십시오.
+
